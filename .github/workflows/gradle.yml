@@ -1,8 +1,14 @@
+name: Java CI with Gradle
+
+on:  # ✅ This section defines when the workflow should run
+  push:
+    branches: [ "newfeature" ]
+  pull_request:
+    branches: [ "newfeature" ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +25,7 @@ jobs:
           gradle-version: '8.12.1'
 
       - name: Grant execute permission to Gradle Wrapper
-        run: chmod +x gradlew  # ✅ Fixes "Permission denied" issue
+        run: chmod +x gradlew  # Fixes permission issue
 
       - name: Build with Gradle Wrapper
         run: ./gradlew build
