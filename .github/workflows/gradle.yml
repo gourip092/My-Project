@@ -1,12 +1,11 @@
 name: Java CI with Gradle
 
-on:  # ✅ This section defines when the workflow should run
-  #push:
+on:
+  push:
     branches: [ "newfeature22" ]
-  #pull_request:
+  pull_request:
     branches: [ "newfeature22" ]
-    workflow_dispatch:
-      
+  workflow_dispatch:
 
 jobs:
   build:
@@ -26,8 +25,15 @@ jobs:
         with:
           gradle-version: '8.12.1'
 
+      - name: Debug Gradle Wrapper Presence
+        run: ls -lah  # ✅ Check if gradlew exists
+
       - name: Grant execute permission to Gradle Wrapper
-        run: chmod +x gradlew  # Fixes permission issue
+        run: chmod +x gradlew  # ✅ Fix permission issue
 
       - name: Build with Gradle Wrapper
         run: ./gradlew build
+
+      - name: Build without Wrapper (Fallback)
+        if: failure()
+        run: gradle build
