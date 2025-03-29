@@ -1,10 +1,12 @@
 name: Java CI with Gradle
 
 on:  # ✅ This section defines when the workflow should run
-  push:
+  #push:
     branches: [ "newfeature" ]
-  pull_request:
+  #pull_request:
     branches: [ "newfeature" ]
+    workflow_dispatch:
+      
 
 jobs:
   build:
