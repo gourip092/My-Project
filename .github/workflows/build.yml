@@ -1,0 +1,43 @@
+name: Build and Push to JFrog Artifactory
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write # VERY IMPORTANT for OIDC
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get ID Token
+        id: get_token
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const id_token = await core.getIDToken();
+            core.setOutput('id_token', id_token);
+
+      - name: Login to JFrog Artifactory using OIDC
+        run: |
+          curl -X POST "http://13.234.225.118:8082/access/api/v1/oidc/token" \
+          -H "Content-Type: application/json" \
+          -d '{
+              "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
+              "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
+              "subject_token": "${{ steps.get_token.outputs.id_token }}"
+          }' > artifactory_token.json
+
+      - name: Use Artifactory Token
+        run: |
+          export ARTIFACTORY_TOKEN=$(jq -r '.access_token' artifactory_token.json)
+          echo "Artifactory Token: $ARTIFACTORY_TOKEN"
+          # Now use $ARTIFACTORY_TOKEN for uploading/downloading from Artifactory
+
