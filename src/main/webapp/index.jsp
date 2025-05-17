@@ -1,21 +1,51 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Skills Development</title>
+  <style>
+    body {
+      background-color: orange;
+      font-family: Arial, sans-serif;
+    }
+    .highlight {
+      color: red;
+      background-color: green;
+      padding: 10px;
+      font-size: 24px;
+      display: inline-block;
+    }
+    .scroll-text {
+      animation: scroll 10s linear infinite;
+      white-space: nowrap;
+      display: block;
+      overflow: hidden;
+    }
+    @keyframes scroll {
+      from {
+        transform: translateX(100%);
+      }
+      to {
+        transform: translateX(-100%);
+      }
+    }
+  </style>
 </head>
-<body  bgcolor="orange"></body>
-  <h1><marquee bgcolor=green> 
-<font color=red>
-ONLINE TRAINING  </font>
-</marquee></h1>
+<body>
+  <div class="scroll-text">
+    <span class="highlight">ONLINE TRAINING</span>
+  </div>
+
   <h3>Choose Skill(s):</h3>
   <form method="get">
-    <input type="checkbox" name="skill" value="Code Developing">Code Developing
-    <input type="checkbox" name="skill" value="System Administraion">System Administraion
-    <input type="checkbox" name="skill" value="Automation"  /t  >Automation 
-    <marquee width=300 height=25 direction=right behavior=alternate scrollamount=5>
-<font color=blue face="Monotype Corsiva" size=5> Trainer is </font>
- <input type="submit" value= "D G Prasad" </marquee>
+    <label><input type="checkbox" name="skill" value="Code Developing"> Code Developing</label><br>
+    <label><input type="checkbox" name="skill" value="System Administration"> System Administration</label><br>
+    <label><input type="checkbox" name="skill" value="Automation"> Automation</label><br><br>
+
+    <div class="scroll-text">
+      <span style="color: blue; font-family: 'Monotype Corsiva', cursive; font-size: 20px;">Trainer is</span>
+      <input type="submit" value="D G Prasad" />
+    </div>
   </form>
- 
 </body>
 </html>
