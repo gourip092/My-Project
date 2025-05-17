@@ -1,5 +1,4 @@
-name: CI/CD: Maven + Sonar + Artifactory + Tomcat
-
+name: CI/CD
 on:
   push:
     branches:
