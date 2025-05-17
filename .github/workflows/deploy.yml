@@ -5,73 +5,24 @@ on:
     branches:
       - main
   workflow_dispatch:
-name: Build, Analyze, Upload to Artifactory, and Deploy to Tomcat
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      # Step 1: Checkout code
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Step 2: Set up Java & Maven
-      - name: Set up JDK 11
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '11'
-
-      # Step 3: Build with Maven
-      - name: Build with Maven
-        run: mvn clean package
-
-      # Step 4: SonarQube Analysis
-      - name: SonarQube Scan
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn sonar:sonar \
-            -Dsonar.projectKey=My-Project \
-            -Dsonar.host.url=http://13.232.125.253:9000 \
-            -Dsonar.login=$SONAR_TOKEN
-
-      # Step 5: Upload artifact to Artifactory
-      - name: Upload to Artifactory
-        env:
-          ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USERNAME }}
-          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-        run: |
-          curl -u $ARTIFACTORY_USER:$ARTIFACTORY_PASSWORD -T target/*.war "http://13.234.225.118:8082/artifactory/libs-release-local/com/mycompany/app/1.0/app-1.0.war"
-
-      # Step 6: Deploy WAR to Tomcat
-      - name: Deploy to Tomcat
-        env:
-          TOMCAT_USER: ${{ secrets.TOMCAT_USERNAME }}
-          TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
-        run: |
-          curl -u $TOMCAT_USER:$TOMCAT_PASSWORD --upload-file target/*.war "http://3.111.39.16:8080/manager/text/deploy?path=/myapp&update=true"
 
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout source code
-      uses: actions/checkout@v3
+    # Step 1: Checkout source code
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - name: Set up Java 17
-      uses: actions/setup-java@v3
+    # Step 2: Set up Java
+    - name: Set up Java 11
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '17'
+        java-version: '11'
 
+    # Step 3: Cache Maven dependencies
     - name: Cache Maven dependencies
       uses: actions/cache@v3
       with:
@@ -79,32 +30,33 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-maven
 
+    # Step 4: Build with Maven
+    - name: Build with Maven
+      run: mvn clean package -DskipTests
+
+    # Step 5: SonarQube Analysis
     - name: SonarQube Analysis
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-        mvn clean verify sonar:sonar \
+        mvn sonar:sonar \
           -Dsonar.projectKey=My-Project \
           -Dsonar.host.url=http://13.232.125.253:9000 \
           -Dsonar.login=$SONAR_TOKEN
 
-    - name: Build with Maven
-      run: mvn package -DskipTests
-
+    # Step 6: Upload WAR to JFrog Artifactory
     - name: Upload WAR to Artifactory
       env:
+        ARTIFACTORY_URL: http://13.232.125.253:8082/artifactory
         ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       run: |
-        curl -u $ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD \
+        curl -u "$ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD" \
           -T target/*.war \
-          "http://13.232.125.253:8082/artifactory/my-repo-name/com/myapp/1.0.0/myapp-1.0.0.war"
+          "$ARTIFACTORY_URL/libs-release-local/com/myapp/1.0.0/myapp-1.0.0.war"
 
+    # Step 7: Deploy to Tomcat
     - name: Deploy WAR to Tomcat
       env:
         TOMCAT_USERNAME: ${{ secrets.TOMCAT_USERNAME }}
-        TOMCAT_PASSWORD: ${{ secrets.TOMCAT_PASSWORD }}
-      run: |
-        curl -u $TOMCAT_USERNAME:$TOMCAT_PASSWORD \
-          --upload-file target/*.war \
-          "http://3.111.39.16:8080/manager/text/deploy?path=/myapp&update=true"
+        TOMCAT_PASSW_
